@@ -1,0 +1,16 @@
+# Virtual environment
+fastapi-env/
+
+# Python bytecode
+__pycache__/
+*.py[cod]
+
+# Environment variables
+.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Other
+*.log
