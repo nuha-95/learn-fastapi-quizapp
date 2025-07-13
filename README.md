@@ -2,7 +2,7 @@
 
 A simple backend project to manage quiz questions and choices, built using **FastAPI**, **SQLAlchemy**, **Pydantic**, and **PostgreSQL**.
 
-This project is beginner-friendly and includes a custom-built **interactive terminal-style documentation UI**, which helps explain how the stack works in a fun way.
+This project is beginner-friendly and includes a custom-built **interactive terminal for documentation**, which helps explain how the stack works in a fun way.
 
 ---
 
