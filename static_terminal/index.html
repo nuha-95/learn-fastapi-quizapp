@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>QuizApp Terminal Docs</title>
+  <style>
+    body {
+    max-width: 600px;
+    margin: 0 auto;
+      background-color: #121212;
+      color: #00ff00;
+      font-family: monospace;
+      padding: 20px;
+    }
+    #terminal {
+      background-color: #1e1e1e;
+      padding: 20px;
+      border-radius: 10px;
+      height: 400px;
+      overflow-y: auto;
+      box-shadow: 0 0 10px #00ff00;
+    }
+    .line {
+      margin: 5px 0;
+    }
+    #input-line {
+      display: flex;
+      align-items: center;
+      margin-top: 10px;
+    }
+    #prompt {
+      margin-right: 5px;
+    }
+    input {
+      background: none;
+      border: none;
+      color: #00ff00;
+      font-family: monospace;
+      outline: none;
+      flex: 1;
+    }
+    @media (max-width: 480px) {
+    #terminal {
+        font-size: 14px;
+        padding: 10px;
+    }
+
+    input {
+        font-size: 14px;
+    }
+    }
+
+  </style>
+</head>
+<body>
+
+  <h1>QuizApp Terminal Docs</h1>
+  <div id="terminal">
+    <div class="line">Welcome to QuizApp Terminal!</div>
+    <div class="line">Type <code>explain fastapi</code>, <code>explain uvicorn</code>, <code>explain pydantic</code>, or <code>explain project</code></div>
+  </div>
+
+  <form id="command-form">
+    <div id="input-line">
+      <span id="prompt">$</span>
+      <input type="text" id="command-input" autocomplete="off" autofocus />
+    </div>
+  </form>
+
+  <script>
+    const terminal = document.getElementById('terminal');
+    const input = document.getElementById('command-input');
+    const form = document.getElementById('command-form');
+
+    const responses = {
+      "explain fastapi": `FastAPI is a modern, fast (high-performance) web framework for building APIs with Python 3.7+. It uses Python type hints, Pydantic for data validation, and Starlette under the hood.`,
+      "explain uvicorn": `Uvicorn is a lightning-fast ASGI server used to run FastAPI applications. It enables asynchronous request handling and supports hot reloading for development.
+
+Command to run your app:
+  uvicorn main:app --reload
+
+Explanation:
+- main: the name of the Python file (main.py)
+- app: the FastAPI instance created in that file (app = FastAPI())
+- --reload: enables auto-reload on code changes, useful during development.`
+,
+      "explain pydantic": `Pydantic is a Python library for data validation and settings management using Python type annotations. FastAPI uses it to define, validate, and serialize data models for request/response bodies.`,
+      "explain project": `This project is a simple quiz API built with FastAPI and PostgreSQL.
+- Create a quiz question with choices: POST /questions/
+- Retrieve a question by ID: GET /questions/{id}
+- Retrieve choices for a question: GET /choices/{id}
+The app uses SQLAlchemy for database interaction and Pydantic for input validation.`
+    };
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const cmd = input.value.trim().toLowerCase();
+      if (!cmd) return;
+
+      // Clear previous terminal output
+      terminal.innerHTML = '';
+
+      // Add typed command
+      appendLine(`$ ${cmd}`);
+
+      // Display response or error
+      if (responses[cmd]) {
+        responses[cmd].split('\n').forEach(line => appendLine(line));
+      } else {
+        appendLine(`Command not found: ${cmd}`);
+      }
+
+      input.value = '';
+      terminal.scrollTop = terminal.scrollHeight;
+    });
+
+    function appendLine(text) {
+      const line = document.createElement('div');
+      line.className = 'line';
+      line.textContent = text;
+      terminal.appendChild(line);
+    }
+  </script>
+
+</body>
+</html>
