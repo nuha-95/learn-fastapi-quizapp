@@ -121,15 +121,14 @@ bash tests/run_playwright_tests.sh # UI tests (local)
 
 ### 🔄 CI/CD Integration
 
-GitHub Actions workflows automatically run tests on:
+GitHub Actions workflow automatically runs tests on:
 - Push to `main`/`develop` branches
 - Pull requests
 - Generates HTML reports as artifacts
+- Combines Postman + PyTest for comprehensive API testing
 
 **Workflows:**
 - `.github/workflows/ci-core.yml` - Core API testing ✅ (runs on push/PR)
-- `.github/workflows/ci-playwright.yml` - UI testing (manual trigger)
-- `.github/workflows/ci-postman.yml` - Legacy (disabled)
 
 ### 🛠️ Test Structure
 
