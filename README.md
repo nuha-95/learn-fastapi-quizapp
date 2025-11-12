@@ -107,10 +107,10 @@ Comprehensive automated testing suite with **Postman/Newman**, **PyTest**, and *
 pip install -r requirements.txt -r requirements-test.txt
 npm install -g newman newman-reporter-htmlextra
 
-# Run all tests
-bash tests/run_postman_tests.sh    # API tests with Newman
-bash tests/run_pytest_tests.sh     # Python API tests  
-bash tests/run_playwright_tests.sh # UI tests
+# Run tests
+bash tests/run_postman_tests.sh    # API tests with Newman ✅
+bash tests/run_pytest_tests.sh     # Python API tests ✅
+bash tests/run_playwright_tests.sh # UI tests ✅
 ```
 
 ### 📈 Test Reports
@@ -127,8 +127,8 @@ GitHub Actions workflows automatically run tests on:
 - Generates HTML reports as artifacts
 
 **Workflows:**
-- `.github/workflows/ci-postman.yml` - API testing
-- `.github/workflows/ci-playwright.yml` - UI testing
+- `.github/workflows/ci-postman.yml` - API testing ✅
+- `.github/workflows/ci-playwright.yml` - UI testing ✅
 
 ### 🛠️ Test Structure
 
