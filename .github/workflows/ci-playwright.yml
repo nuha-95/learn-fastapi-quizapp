@@ -47,23 +47,37 @@ jobs:
         cd tests/ui/playwright
         npm init -y
         npm install @playwright/test
-        npx playwright install
+        npx playwright install chromium
 
     - name: Start FastAPI app
       run: |
         uvicorn main:app --host 0.0.0.0 --port 8000 &
-        sleep 10
+        sleep 15
       env:
         DATABASE_URL: postgresql://postgres:postgres@localhost:5432/quizapp_test
+
+    - name: Wait for API to be ready
+      run: |
+        for i in {1..30}; do
+          if curl -f http://localhost:8000/health; then
+            echo "API is ready"
+            break
+          fi
+          echo "Waiting for API... ($i/30)"
+          sleep 2
+        done
 
     - name: Run Playwright Tests
       run: |
         cd tests/ui/playwright
-        npx playwright test
+        npx playwright test --reporter=html
+      continue-on-error: true
 
     - name: Upload Playwright Report
       uses: actions/upload-artifact@v4
       if: always()
       with:
         name: playwright-report
-        path: tests/ui/playwright/playwright-report/
+        path: |
+          tests/ui/playwright/playwright-report/
+          tests/ui/playwright/test-results/

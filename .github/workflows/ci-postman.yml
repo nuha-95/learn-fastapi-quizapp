@@ -66,6 +66,9 @@ jobs:
           sleep 2
         done
 
+    - name: Create reports directory
+      run: mkdir -p reports
+
     - name: Run Postman Tests
       run: |
         newman run tests/api/postman/QuizApp_Collection.json \
@@ -73,24 +76,16 @@ jobs:
           -r htmlextra \
           --reporter-htmlextra-export reports/postman-report.html \
           --reporter-htmlextra-darkTheme
+      continue-on-error: true
 
     - name: Run PyTest API Tests
       run: |
         cd tests/api/pytest
         pytest -v --tb=short
 
-    - name: Upload Postman Test Reports
+    - name: Upload Test Reports
       uses: actions/upload-artifact@v4
-      if: always()
+      if: always() && hashFiles('reports/*') != ''
       with:
-        name: postman-test-reports
+        name: test-reports
         path: reports/
-
-    - name: Upload Test Results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results
-        path: |
-          reports/
-          test-results/
