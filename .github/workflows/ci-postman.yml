@@ -80,14 +80,14 @@ jobs:
         pytest -v --tb=short
 
     - name: Upload Postman Test Reports
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: postman-test-reports
         path: reports/
 
     - name: Upload Test Results
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       if: always()
       with:
         name: test-results
