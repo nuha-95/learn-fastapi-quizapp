@@ -9,20 +9,6 @@ on:
 jobs:
   test:
     runs-on: ubuntu-latest
-    
-    services:
-      postgres:
-        image: postgres:13
-        env:
-          POSTGRES_PASSWORD: test12345!
-          POSTGRES_DB: quizapp
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
 
     steps:
     - uses: actions/checkout@v4
@@ -46,23 +32,40 @@ jobs:
     - name: Install Newman
       run: npm install -g newman newman-reporter-htmlextra
 
+    - name: Create SQLite database config for CI
+      run: |
+        cat > database_ci.py << 'EOF'
+        from sqlalchemy import create_engine
+        from sqlalchemy.ext.declarative import declarative_base
+        from sqlalchemy.orm import sessionmaker
+
+        SQLALCHEMY_DATABASE_URL = "sqlite:///./test.db"
+        engine = create_engine(SQLALCHEMY_DATABASE_URL, connect_args={"check_same_thread": False})
+        sessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        Base = declarative_base()
+        EOF
+
+    - name: Update main.py to use SQLite for CI
+      run: |
+        sed -i 's/from database import/from database_ci import/g' main.py
+
     - name: Create reports directory
       run: mkdir -p reports
 
     - name: Start FastAPI app
       run: |
         uvicorn main:app --host 0.0.0.0 --port 8000 &
-        sleep 10
+        sleep 8
 
     - name: Wait for API to be ready
       run: |
-        for i in {1..30}; do
+        for i in {1..20}; do
           if curl -f http://localhost:8000/health; then
             echo "API is ready"
             break
           fi
-          echo "Waiting for API... ($i/30)"
-          sleep 2
+          echo "Waiting for API... ($i/20)"
+          sleep 3
         done
 
     - name: Run Postman Tests
@@ -71,7 +74,12 @@ jobs:
           -e tests/api/postman/QuizApp_Environment.json \
           -r htmlextra \
           --reporter-htmlextra-export reports/postman-report.html \
-          --reporter-htmlextra-darkTheme || echo "Postman tests completed with issues"
+          --reporter-htmlextra-darkTheme
+
+    - name: Run PyTest API Tests
+      run: |
+        cd tests/api/pytest
+        pytest -v --tb=short
 
     - name: Upload Test Reports
       uses: actions/upload-artifact@v4

@@ -125,6 +125,7 @@ GitHub Actions workflow automatically runs tests on:
 - Push to `main`/`develop` branches
 - Pull requests
 - Generates HTML reports as artifacts
+- Uses SQLite for reliable CI testing
 - Combines Postman + PyTest for comprehensive API testing
 
 **Workflows:**
