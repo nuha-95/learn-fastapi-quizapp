@@ -1,10 +1,11 @@
-name: QuizApp CI - Postman Tests
+name: QuizApp CI - Postman Tests (Legacy)
 
-on:
-  push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main ]
+# Replaced by ci-core.yml
+# on:
+#   push:
+#     branches: [ main, develop ]
+#   pull_request:
+#     branches: [ main ]
 
 jobs:
   test:

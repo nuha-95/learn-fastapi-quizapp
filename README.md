@@ -110,7 +110,7 @@ npm install -g newman newman-reporter-htmlextra
 # Run tests
 bash tests/run_postman_tests.sh    # API tests with Newman ✅
 bash tests/run_pytest_tests.sh     # Python API tests ✅
-bash tests/run_playwright_tests.sh # UI tests ✅
+bash tests/run_playwright_tests.sh # UI tests (local)
 ```
 
 ### 📈 Test Reports
@@ -127,8 +127,9 @@ GitHub Actions workflows automatically run tests on:
 - Generates HTML reports as artifacts
 
 **Workflows:**
-- `.github/workflows/ci-postman.yml` - API testing ✅
-- `.github/workflows/ci-playwright.yml` - UI testing ✅
+- `.github/workflows/ci-core.yml` - Core API testing ✅ (runs on push/PR)
+- `.github/workflows/ci-playwright.yml` - UI testing (manual trigger)
+- `.github/workflows/ci-postman.yml` - Legacy (disabled)
 
 ### 🛠️ Test Structure
 

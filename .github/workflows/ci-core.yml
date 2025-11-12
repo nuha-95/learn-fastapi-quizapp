@@ -1,12 +1,13 @@
-name: QuizApp CI - Playwright Tests
+name: QuizApp CI - Core Tests
 
 on:
-  workflow_dispatch:
-  schedule:
-    - cron: '0 2 * * 1'  # Weekly on Monday at 2 AM
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
 
 jobs:
-  playwright-tests:
+  test:
     runs-on: ubuntu-latest
     
     services:
@@ -24,7 +25,7 @@ jobs:
           - 5432:5432
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Set up Python
       uses: actions/setup-python@v4
@@ -35,26 +36,20 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
+        pip install -r requirements-test.txt
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: tests/ui/playwright/package.json
 
-    - name: Install Playwright dependencies
-      run: |
-        cd tests/ui/playwright
-        npm ci || npm install
-        npx playwright install --with-deps chromium
+    - name: Install Newman
+      run: npm install -g newman newman-reporter-htmlextra
 
-    - name: Install system dependencies for Playwright
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y xvfb
+    - name: Create reports directory
+      run: mkdir -p reports
 
-    - name: Start FastAPI app in background
+    - name: Start FastAPI app
       run: |
         uvicorn main:app --host 0.0.0.0 --port 8000 &
         echo $! > fastapi.pid
@@ -66,14 +61,18 @@ jobs:
         timeout 60 bash -c 'until curl -f http://localhost:8000/health; do sleep 2; done'
         echo "API is ready"
 
-    - name: Run Playwright Tests with virtual display
+    - name: Run Postman Tests
       run: |
-        cd tests/ui/playwright
-        xvfb-run -a npx playwright test --reporter=html,line
-      env:
-        CI: true
-        DISPLAY: :99
-      continue-on-error: true
+        newman run tests/api/postman/QuizApp_Collection.json \
+          -e tests/api/postman/QuizApp_Environment.json \
+          -r htmlextra \
+          --reporter-htmlextra-export reports/postman-report.html \
+          --reporter-htmlextra-darkTheme
+
+    - name: Run PyTest API Tests
+      run: |
+        cd tests/api/pytest
+        pytest -v --tb=short
 
     - name: Stop FastAPI app
       if: always()
@@ -83,12 +82,10 @@ jobs:
           rm fastapi.pid
         fi
 
-    - name: Upload Playwright Report
+    - name: Upload Test Reports
       uses: actions/upload-artifact@v4
-      if: always() && (hashFiles('tests/ui/playwright/playwright-report/**/*') != '' || hashFiles('tests/ui/playwright/test-results/**/*') != '')
+      if: always()
       with:
-        name: playwright-report
-        path: |
-          tests/ui/playwright/playwright-report/
-          tests/ui/playwright/test-results/
+        name: test-reports
+        path: reports/
         if-no-files-found: ignore
