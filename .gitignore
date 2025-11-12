@@ -12,5 +12,22 @@ __pycache__/
 .DS_Store
 Thumbs.db
 
+# Test reports and artifacts
+reports/
+test-results/
+playwright-report/
+node_modules/
+.pytest_cache/
+playwright/
+
+# Database files
+*.db
+*.sqlite
+*.sqlite3
+test.db
+
+# Newman/Postman temporary files
+newman/
+
 # Other
 *.log

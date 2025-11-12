@@ -54,10 +54,14 @@ uvicorn main:app --reload
 
 | Method | Endpoint              | Description                        |
 | ------ | --------------------- | ---------------------------------- |
-| GET    | `/questions/{id}`     | Get a specific question            |
-| GET    | `/choices/{question}` | Get choices for a question         |
+| GET    | `/health`             | Health check endpoint              |
+| GET    | `/questions/`         | Get all questions                  |
 | POST   | `/questions/`         | Create a new question with choices |
-
+| GET    | `/questions/{id}`     | Get a specific question            |
+| PUT    | `/questions/{id}`     | Update a question with choices     |
+| DELETE | `/questions/{id}`     | Delete a question and its choices  |
+| GET    | `/choices/{question}` | Get choices for a question         |
+| GET    | `/stats`              | Get database statistics            |
 ---
 
 ## 🧪 Terminal-UI for Documentation
@@ -77,12 +81,80 @@ This app includes an interactive documentation page at `/terminal`. It mimics a 
 
 ---
 
+---
+
+## 🧪 QA Testing & Automation
+
+Comprehensive automated testing suite with **Postman/Newman**, **PyTest**, and **Playwright**.
+
+### 📊 Test Coverage
+
+| Endpoint | Method | Tests |
+|----------|--------|---------|
+| `/health` | GET | ✅ Status, Schema, Performance |
+| `/questions/` | GET | ✅ Array response, Performance |
+| `/questions/` | POST | ✅ Valid/Invalid data, Schema |
+| `/questions/{id}` | GET | ✅ Valid/Invalid ID, 404 handling |
+| `/questions/{id}` | PUT | ✅ Update, Error handling |
+| `/questions/{id}` | DELETE | ✅ Delete, Error handling |
+| `/choices/{id}` | GET | ✅ Valid/Invalid ID, Schema |
+| `/stats` | GET | ✅ Statistics, Data types |
+
+### 🚀 Quick Test Run
+
+```bash
+# Install dependencies
+pip install -r requirements.txt -r requirements-test.txt
+npm install -g newman newman-reporter-htmlextra
+
+# Run all tests
+bash tests/run_postman_tests.sh    # API tests with Newman
+bash tests/run_pytest_tests.sh     # Python API tests  
+bash tests/run_playwright_tests.sh # UI tests
+```
+
+### 📈 Test Reports
+
+- **Postman Reports**: `reports/postman-report.html`
+- **PyTest Output**: Console with detailed results
+- **Playwright Reports**: `tests/ui/playwright/playwright-report/`
+
+### 🔄 CI/CD Integration
+
+GitHub Actions workflows automatically run tests on:
+- Push to `main`/`develop` branches
+- Pull requests
+- Generates HTML reports as artifacts
+
+**Workflows:**
+- `.github/workflows/ci-postman.yml` - API testing
+- `.github/workflows/ci-playwright.yml` - UI testing
+
+### 🛠️ Test Structure
+
+```
+tests/
+├── api/
+│   ├── postman/          # Newman/Postman tests
+│   └── pytest/           # Python API tests
+├── ui/
+│   └── playwright/       # Browser UI tests
+├── reports/              # Test output reports
+└── *.sh                  # Local test runners
+```
+
+See `tests/README.md` for detailed testing documentation.
+
+---
+
 ## 💡 Future Improvements
 
 * Add user authentication
 * Add quiz scoring
 * Add frontend for users to take the quiz
 * Add pagination & filtering support for questions
+* Add performance testing with load tests
+* Add security testing with OWASP checks
 
 ---
 

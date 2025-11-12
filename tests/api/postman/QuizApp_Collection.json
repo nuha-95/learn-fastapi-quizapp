@@ -1,0 +1,407 @@
+{
+  "info": {
+    "name": "QuizApp API Tests",
+    "description": "Comprehensive API tests for QuizApp FastAPI backend",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "{{base_url}}"
+    }
+  ],
+  "item": [
+    {
+      "name": "Health Check",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response time is less than 500ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);",
+              "});",
+              "",
+              "pm.test('Response has correct schema', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.property('status');",
+              "    pm.expect(responseJson).to.have.property('message');",
+              "    pm.expect(responseJson.status).to.eql('healthy');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/health",
+          "host": ["{{base_url}}"],
+          "path": ["health"]
+        }
+      }
+    },
+    {
+      "name": "Create Question - Valid",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response time is less than 1000ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(1000);",
+              "});",
+              "",
+              "pm.test('Response contains creation confirmation', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.property('id');",
+              "    pm.expect(responseJson).to.have.property('message');",
+              "    pm.expect(responseJson.message).to.include('created');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"question_text\": \"What is FastAPI?\",\n  \"choises\": [\n    {\n      \"choice_text\": \"A Python web framework\",\n      \"is_correct\": true\n    },\n    {\n      \"choice_text\": \"A database\",\n      \"is_correct\": false\n    },\n    {\n      \"choice_text\": \"A testing tool\",\n      \"is_correct\": false\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/questions/",
+          "host": ["{{base_url}}"],
+          "path": ["questions", ""]
+        }
+      }
+    },
+    {
+      "name": "Create Question - Invalid Schema",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 422', function () {",
+              "    pm.response.to.have.status(422);",
+              "});",
+              "",
+              "pm.test('Response contains validation error', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.property('detail');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"invalid_field\": \"test\"\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/questions/",
+          "host": ["{{base_url}}"],
+          "path": ["questions", ""]
+        }
+      }
+    },
+    {
+      "name": "Get Question - Valid ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has correct schema', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.property('id');",
+              "    pm.expect(responseJson).to.have.property('question_text');",
+              "});",
+              "",
+              "pm.test('Response time is less than 500ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/questions/1",
+          "host": ["{{base_url}}"],
+          "path": ["questions", "1"]
+        }
+      }
+    },
+    {
+      "name": "Get Question - Invalid ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 404', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test('Response contains error message', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.property('detail');",
+              "    pm.expect(responseJson.detail).to.include('not found');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/questions/99999",
+          "host": ["{{base_url}}"],
+          "path": ["questions", "99999"]
+        }
+      }
+    },
+    {
+      "name": "Get Choices - Valid Question ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response is an array', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Each choice has correct schema', function () {",
+              "    const responseJson = pm.response.json();",
+              "    if (responseJson.length > 0) {",
+              "        responseJson.forEach(choice => {",
+              "            pm.expect(choice).to.have.property('id');",
+              "            pm.expect(choice).to.have.property('choice_text');",
+              "            pm.expect(choice).to.have.property('is_correct');",
+              "            pm.expect(choice).to.have.property('question_id');",
+              "        });",
+              "    }",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/choices/1",
+          "host": ["{{base_url}}"],
+          "path": ["choices", "1"]
+        }
+      }
+    },
+    {
+      "name": "Get Choices - Invalid Question ID",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 404', function () {",
+              "    pm.response.to.have.status(404);",
+              "});",
+              "",
+              "pm.test('Response contains error message', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.property('detail');",
+              "    pm.expect(responseJson.detail).to.include('not found');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/choices/99999",
+          "host": ["{{base_url}}"],
+          "path": ["choices", "99999"]
+        }
+      }
+    },
+    {
+      "name": "Get All Questions",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response is an array', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.be.an('array');",
+              "});",
+              "",
+              "pm.test('Response time is less than 500ms', function () {",
+              "    pm.expect(pm.response.responseTime).to.be.below(500);",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/questions/",
+          "host": ["{{base_url}}"],
+          "path": ["questions", ""]
+        }
+      }
+    },
+    {
+      "name": "Update Question",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response contains success message', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.property('message');",
+              "    pm.expect(responseJson.message).to.include('updated');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "PUT",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/json"
+          }
+        ],
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"question_text\": \"What is FastAPI? (Updated)\",\n  \"choises\": [\n    {\n      \"choice_text\": \"A Python web framework\",\n      \"is_correct\": true\n    },\n    {\n      \"choice_text\": \"A database\",\n      \"is_correct\": false\n    }\n  ]\n}"
+        },
+        "url": {
+          "raw": "{{base_url}}/questions/1",
+          "host": ["{{base_url}}"],
+          "path": ["questions", "1"]
+        }
+      }
+    },
+    {
+      "name": "Delete Question",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response contains success message', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.property('message');",
+              "    pm.expect(responseJson.message).to.include('deleted');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "DELETE",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/questions/2",
+          "host": ["{{base_url}}"],
+          "path": ["questions", "2"]
+        }
+      }
+    },
+    {
+      "name": "Get Stats",
+      "event": [
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "pm.test('Status code is 200', function () {",
+              "    pm.response.to.have.status(200);",
+              "});",
+              "",
+              "pm.test('Response has correct schema', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson).to.have.property('total_questions');",
+              "    pm.expect(responseJson).to.have.property('total_choices');",
+              "    pm.expect(responseJson).to.have.property('avg_choices_per_question');",
+              "});",
+              "",
+              "pm.test('Stats are numbers', function () {",
+              "    const responseJson = pm.response.json();",
+              "    pm.expect(responseJson.total_questions).to.be.a('number');",
+              "    pm.expect(responseJson.total_choices).to.be.a('number');",
+              "    pm.expect(responseJson.avg_choices_per_question).to.be.a('number');",
+              "});"
+            ]
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{base_url}}/stats",
+          "host": ["{{base_url}}"],
+          "path": ["stats"]
+        }
+      }
+    }
+  ]
+}
